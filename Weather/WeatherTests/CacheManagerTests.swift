@@ -53,4 +53,36 @@ final class CityHistoryManagerTests: XCTestCase {
         XCTAssertEqual(cities.count, 1)
         XCTAssertEqual(cities.first, "hAnOi")
     }
+    
+    func makeMockWeather() -> CurrentWeather {
+            return CurrentWeather(
+                weatherIconUrl: [WeatherURL(value: "https://google.com/icon.png")],
+                humidity: "60",
+                weatherDesc: [WeatherDescription(value: "Sunny")],
+                temp_C: "30",
+                temp_F: "86"
+            )
+        }
+    func testSetAndGetCachedWeatherWithin60Seconds() {
+            let weather = makeMockWeather()
+            CachingManager.shared.setCachedWeather(for: "Hanoi", data: weather)
+            let cached = CachingManager.shared.getCachedWeather(for: "Hanoi")
+            XCTAssertNotNil(cached)
+            XCTAssertEqual(cached?.temp_C, "30")
+            XCTAssertEqual(cached?.weatherDesc.first?.value, "Sunny")
+        }
+
+        func testCacheExpiresAfter60Seconds() {
+            let weather = makeMockWeather()
+            let city = "Saigon"
+            let pastDate = Date().addingTimeInterval(-61)
+            let expiredCache = CachedWeather(data: weather, timestamp: pastDate)
+
+            CachingManager.shared.setCachedWeather(for: city, data: weather)
+            CachingManager.shared.cache[city.lowercased()] = expiredCache
+
+            let result = CachingManager.shared.getCachedWeather(for: city)
+            XCTAssertNil(result)
+        }
+
 }

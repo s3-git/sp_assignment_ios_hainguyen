@@ -7,11 +7,13 @@
 
 import Foundation
 
+#if DEBUG
+
 class CachingManager {
     static let shared = CachingManager()
     private let key = "recentSearch"
     
-    private var cache: [String: CachedWeather] = [:]
+    internal var cache: [String: CachedWeather] = [:]
     
 
     func addCity(_ city: String) {
@@ -51,4 +53,4 @@ struct CachedWeather {
     let data: CurrentWeather
     let timestamp: Date
 }
-
+#endif
